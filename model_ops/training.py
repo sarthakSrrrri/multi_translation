@@ -30,11 +30,7 @@ print("Model loaded.")
 print("Using device:", "GPU" if torch.cuda.is_available() else "CPU")
 
 
-# Custom Callback for Monitoring
-class PrintLossCallback(TrainerCallback):
-    def on_log(self, args, state, control, logs=None, **kwargs):
-        if logs is not None and "loss" in logs:
-            print(f"Step {state.global_step} - Loss: {logs['loss']}")
+
 
 
 # Training Arguments
@@ -65,8 +61,7 @@ trainer = Trainer(
     model=model,
     args=training_args,
     train_dataset=tokenized_dataset["train"],
-    eval_dataset=tokenized_dataset["validation"],
-    callbacks=[PrintLossCallback()]
+    eval_dataset=tokenized_dataset["validation"]
 )
 
 print("Trainer ready.")
@@ -74,3 +69,4 @@ print("Step 7: Training started...")
 trainer.train()
 
 print("Training completed.")
+
