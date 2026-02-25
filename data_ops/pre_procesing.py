@@ -7,14 +7,14 @@ def load_data():
         "json",
         data_files={
             "train": [
-                "processed_data/ben/ben_train.json",
-                "processed_data/guj/guj_train.json",
-                "processed_data/mar/mar_train.json"
+                "../data/processed_data/ben/ben_train.json",
+                "../data/processed_data/guj/guj_train.json",
+                "../data/processed_data/mar/mar_train.json"
             ],
             "validation": [
-                "processed_data/ben/ben_valid.json",
-                "processed_data/guj/guj_valid.json",
-                "processed_data/mar/mar_valid.json"
+                "../data/processed_data/ben/ben_valid.json",
+                "../data/processed_data/guj/guj_valid.json",
+                "../data/processed_data/mar/mar_valid.json"
             ]
         }
     )
@@ -25,7 +25,24 @@ def load_data():
     return dataset
 
 
-def tokenize_dataset(dataset, model_name="google/mt5-small"):
+
+
+def check_length_distribution(dataset):
+    tokenizer = AutoTokenizer.from_pretrained("google/mt5-small")
+    lengths = []
+
+    for example in dataset["train"]:
+        tokens = tokenizer(example["input_text"])
+        lengths.append(len(tokens["input_ids"]))
+        print()
+
+    print("Max length:", max(lengths))
+    print("Min length:", min(lengths))
+    print("Average length:", sum(lengths) / len(lengths))
+
+
+
+def tokenize_dataset(dataset):
 
     tokenizer = AutoTokenizer.from_pretrained("google/mt5-small")
 
@@ -44,8 +61,14 @@ def tokenize_dataset(dataset, model_name="google/mt5-small"):
             padding="max_length"
         )
 
-        model_inputs["labels"] = labels["input_ids"]
+        labels_ids = labels["input_ids"]
 
+        labels_ids = [
+            [(l if l != tokenizer.pad_token_id else -100) for l in label]
+            for label in labels_ids
+        ]
+
+        model_inputs["labels"] = labels_ids
         return model_inputs
 
     tokenized_dataset = dataset.map(
@@ -60,3 +83,13 @@ def tokenize_dataset(dataset, model_name="google/mt5-small"):
     return tokenized_dataset, tokenizer
 
 
+
+if __name__ == "__main__":
+    dataset = load_data()
+    # check_length_distribution(dataset)
+  
+
+    tokenized_dataset, tokenizer = tokenize_dataset(dataset)
+
+    print("Sample tokenized example:")
+    print(tokenized_dataset["train"][0])
