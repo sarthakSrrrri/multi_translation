@@ -9,7 +9,7 @@ from transformers import (
 )
 
 
-# dataset = load_from_disk(destination_dir)
+# loading tokeized arrow dataset 
 dataset =  "E:/Machine Learning/mt5_transliteration/data_ops/data/tokenized_data"
 
 print("Full Train Size:", len(dataset["train"]))
